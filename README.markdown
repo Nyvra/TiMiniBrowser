@@ -20,4 +20,4 @@ winModalBrowser.open();</pre>
 
 Ti.UI.currentTab.open(tabGroupedBrowser.create());</pre>
 <h2>Images</h2>
-<p align="center"><img src="http://img3.imageshack.us/img3/7131/screenshot20111229at335.png"></p>
+<p align="center"><img src="http://img3.imageshack.us/img3/7131/screenshot20111229at335.png"><img src="http://img194.imageshack.us/img194/3579/screenshot20111229at930.png"></p>
