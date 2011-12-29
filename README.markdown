@@ -20,7 +20,4 @@ winModalBrowser.open();</pre>
 
 Ti.UI.currentTab.open(tabGroupedBrowser.create());</pre>
 <h2>Images</h2>
-<p>![Alt text](http://img3.imageshack.us/img3/7131/screenshot20111229at335.png)
-![Alt text](http://img194.imageshack.us/img194/3579/screenshot20111229at930.png)
-![Alt text](http://imageshack.us/photo/my-images/651/screenshot20111229at931.png)
-![Alt text](http://imageshack.us/photo/my-images/545/screenshot20111229at931.png)</p>
+<p align="center"><img src="http://img3.imageshack.us/img3/7131/screenshot20111229at335.png"></p>
