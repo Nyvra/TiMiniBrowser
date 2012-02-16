@@ -47,7 +47,25 @@ var MiniBrowser = function(dictionary)
 			
 			buttonCloseWindow.addEventListener("click", function() {
 				winBase.close();
-			})
+			});
+
+			winBase.addEventListener("close", function() 
+			{
+				windowBrowser = null;
+				nav = null;
+				buttonCloseWindow = null;
+				webViewBrowser = null;
+	
+				toolbarButtons = null;
+				buttonBack = null;
+				buttonForward = null;
+				buttonStop = null;
+				buttonRefresh = null;
+				buttonAction = null;
+				buttonSpace = null;
+
+				winBase = null;
+			});
 		}
 		
 		webViewBrowser = Ti.UI.createWebView({
