@@ -20,9 +20,7 @@ buttonOpenMobileBrowser.addEventListener("click", function() {
 		modal:true
 	});
 	
-	var windowBrowserExample = browser.create();
-	
-	windowBrowserExample.open();
+	browser.openBrowser();
 	
 });
 
