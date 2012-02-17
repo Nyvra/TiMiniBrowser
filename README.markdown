@@ -4,7 +4,7 @@
 <h1>How to use it?</h1>
 <p>You have just to instance the MiniBrowser to a variable, and <i>create</i> it. It will return a <i>Window</i>, and you can do what you want. See these examples:</p>
 
-<h1>Parameters</<h1>
+<h1>Parameters</h1>
 <ul>
 	<li><b>url:</b> (STRING) This parameter is the URL to open in the browser</li>
 	<li><b>barColor:</b> (STRING) The color of navigationBar and toolbar of the browser (example: #000)</li>
