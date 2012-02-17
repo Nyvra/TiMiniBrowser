@@ -99,7 +99,12 @@ var MiniBrowser = function(dictionary)
 	this.initActions = function()
 	{
 		actionsDialog = Ti.UI.createOptionDialog({
-			options:["Copiar Link","Abrir no Safari","Enviar Link por e-mail","Cancelar"],
+			options:[
+				L("copy_link", "Copy link"), 
+				L("open_safari", "Open in the Safari"),
+				L("send_by_email","Send by email"),
+				L("cancel","Cancel")
+			],
 			cancel:3
 		});
 
@@ -147,7 +152,7 @@ var MiniBrowser = function(dictionary)
 			winBase.add(nav);
 			
 			buttonCloseWindow = Ti.UI.createButton({
-				title:"Fechar",
+				title:L("close","Close"),
 				style:Ti.UI.iPhone.SystemButtonStyle.DONE
 			});
 			windowBrowser.leftNavButton = buttonCloseWindow;
