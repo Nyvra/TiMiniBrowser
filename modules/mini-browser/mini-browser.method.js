@@ -20,9 +20,116 @@ var MiniBrowser = function(dictionary)
 	var buttonSpace;
 	
 	var actionDialog;
-	
-	this.create = function()
+		
+	this.initToolbar = function()
 	{
+		toolbarButtons = Ti.UI.iOS.createToolbar({
+			barColor:this.barColor,
+			bottom:0,
+			height:44
+		});
+		
+		buttonBack = Ti.UI.createButton({
+			image:"modules/mini-browser/Icon-Back.png",
+			enabled:false
+		});
+		buttonBack.addEventListener("click", function() {
+			webViewBrowser.goBack();
+		});
+		
+		buttonForward = Ti.UI.createButton({
+			image:"modules/mini-browser/Icon-Forward.png",
+			enabled:false
+		});
+		buttonForward.addEventListener("click", function() {
+			webViewBrowser.goForward();
+		});
+		
+		buttonStop = Ti.UI.createButton({
+			systemButton:Titanium.UI.iPhone.SystemButton.STOP
+		});
+		buttonStop.addEventListener("click", function() {
+			
+			activityIndicator.hide();
+			
+			webViewBrowser.stopLoading();
+		
+			buttonBack.enabled = webViewBrowser.canGoBack();
+			buttonForward.enabled = webViewBrowser.canGoForward();
+			buttonAction.enabled = true;
+
+			actionsDialog.title = webViewBrowser.url;
+
+			toolbarButtons.items = [
+				buttonBack,
+				buttonSpace,
+				buttonForward,
+				buttonSpace,
+				buttonRefresh,
+				buttonSpace,
+				buttonAction
+			];
+		
+		});
+		
+		buttonRefresh = Ti.UI.createButton({
+			systemButton:Titanium.UI.iPhone.SystemButton.REFRESH
+		});
+		buttonRefresh.addEventListener("click", function() {
+			webViewBrowser.reload();
+		});
+		
+		buttonAction = Ti.UI.createButton({
+			systemButton:Titanium.UI.iPhone.SystemButton.ACTION,
+			enabled:false
+		});
+		buttonAction.addEventListener("click", function() {
+			actionsDialog.show();
+		});
+		
+		buttonSpace = Ti.UI.createButton({
+			systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
+		});
+		
+		this.initActions();
+
+		windowBrowser.add(toolbarButtons);
+	},
+	
+	this.initActions = function()
+	{
+		actionsDialog = Ti.UI.createOptionDialog({
+			options:["Copiar Link","Abrir no Safari","Enviar Link por e-mail","Cancelar"],
+			cancel:3
+		});
+
+		actionsDialog.addEventListener("click", function(e) {
+			switch(e.index) {
+				case 0: 
+					Titanium.UI.Clipboard.setText(webViewBrowser.url);
+					break;
+				case 1: 
+					if (Titanium.Platform.canOpenURL(webViewBrowser.url)) {
+						Titanium.Platform.openURL(webViewBrowser.url);
+					}
+					break;
+				case 2:
+					var emailDialog = Titanium.UI.createEmailDialog({
+						barColor:windowBrowser.barColor
+					});
+					
+					emailDialog.subject = windowBrowser.title;
+					emailDialog.messageBody = webViewBrowser.url;
+					emailDialog.open();
+					break;
+				default:
+					break;
+			}
+		});
+		
+	}
+
+	(function() {
 		windowBrowser = Ti.UI.createWindow({
 			barColor:this.barColor,
 			backgroundColor:"#FFF"
@@ -150,113 +257,6 @@ var MiniBrowser = function(dictionary)
 		this.initToolbar();
 		
 		return (this.modal == true) ? winBase : windowBrowser;
-	}
-	
-	this.initToolbar = function()
-	{
-		toolbarButtons = Ti.UI.iOS.createToolbar({
-			barColor:this.barColor,
-			bottom:0,
-			height:44
-		});
-		
-		buttonBack = Ti.UI.createButton({
-			image:"modules/mini-browser/Icon-Back.png",
-			enabled:false
-		});
-		buttonBack.addEventListener("click", function() {
-			webViewBrowser.goBack();
-		});
-		
-		buttonForward = Ti.UI.createButton({
-			image:"modules/mini-browser/Icon-Forward.png",
-			enabled:false
-		});
-		buttonForward.addEventListener("click", function() {
-			webViewBrowser.goForward();
-		});
-		
-		buttonStop = Ti.UI.createButton({
-			systemButton:Titanium.UI.iPhone.SystemButton.STOP
-		});
-		buttonStop.addEventListener("click", function() {
-			
-			activityIndicator.hide();
-			
-			webViewBrowser.stopLoading();
-		
-			buttonBack.enabled = webViewBrowser.canGoBack();
-			buttonForward.enabled = webViewBrowser.canGoForward();
-			buttonAction.enabled = true;
+	)();
 
-			actionsDialog.title = webViewBrowser.url;
-
-			toolbarButtons.items = [
-				buttonBack,
-				buttonSpace,
-				buttonForward,
-				buttonSpace,
-				buttonRefresh,
-				buttonSpace,
-				buttonAction
-			];
-		
-		});
-		
-		buttonRefresh = Ti.UI.createButton({
-			systemButton:Titanium.UI.iPhone.SystemButton.REFRESH
-		});
-		buttonRefresh.addEventListener("click", function() {
-			webViewBrowser.reload();
-		});
-		
-		buttonAction = Ti.UI.createButton({
-			systemButton:Titanium.UI.iPhone.SystemButton.ACTION,
-			enabled:false
-		});
-		buttonAction.addEventListener("click", function() {
-			actionsDialog.show();
-		});
-		
-		buttonSpace = Ti.UI.createButton({
-			systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
-		});
-		
-		this.initActions();
-
-		windowBrowser.add(toolbarButtons);
-	},
-	
-	this.initActions = function()
-	{
-		actionsDialog = Ti.UI.createOptionDialog({
-			options:["Copiar Link","Abrir no Safari","Enviar Link por e-mail","Cancelar"],
-			cancel:3
-		});
-
-		actionsDialog.addEventListener("click", function(e) {
-			switch(e.index) {
-				case 0: 
-					Titanium.UI.Clipboard.setText(webViewBrowser.url);
-					break;
-				case 1: 
-					if (Titanium.Platform.canOpenURL(webViewBrowser.url)) {
-						Titanium.Platform.openURL(webViewBrowser.url);
-					}
-					break;
-				case 2:
-					var emailDialog = Titanium.UI.createEmailDialog({
-						barColor:windowBrowser.barColor
-					});
-					
-					emailDialog.subject = windowBrowser.title;
-					emailDialog.messageBody = webViewBrowser.url;
-					emailDialog.open();
-					break;
-				default:
-					break;
-			}
-		});
-		
-	}
 }
