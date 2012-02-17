@@ -1,8 +1,9 @@
 var MiniBrowser = function(dictionary) 
 {
 	this.url = dictionary.url;
-	this.barColor = (dictionary.barColor) ? dictionary.barColor : Ti.UI.currentWindow.barColor;
-	this.modal = (dictionary.modal) ? dictionary.modal : false;
+	this.barColor = (dictionary.barColor != "undefined") ? dictionary.barColor : Ti.UI.currentWindow.barColor;
+	this.modal = (dictionary.modal != "undefined") ? dictionary.modal : false;
+	this.showToolbar = (dictionary.showToolbar != "undefined") ? dictionary.showToolbar : true;
 
 	var winBase;
 	var nav;
@@ -20,7 +21,7 @@ var MiniBrowser = function(dictionary)
 	var buttonSpace;
 	
 	var actionDialog;
-		
+	
 	this.initToolbar = function()
 	{
 		toolbarButtons = Ti.UI.iOS.createToolbar({
@@ -134,134 +135,137 @@ var MiniBrowser = function(dictionary)
 		
 	}
 
-	(function() {
-		windowBrowser = Ti.UI.createWindow({
-			barColor:this.barColor,
-			backgroundColor:"#FFF"
-		});
-		
-		if (this.modal == true) 
-		{
-			winBase = Ti.UI.createWindow({
-				navBarHidden:true,
-				modal:true
-			});
-			nav = Ti.UI.iPhone.createNavigationGroup({
-				window:windowBrowser
-			});
-			winBase.add(nav);
-			
-			buttonCloseWindow = Ti.UI.createButton({
-				title:L("close","Close"),
-				style:Ti.UI.iPhone.SystemButtonStyle.DONE
-			});
-			windowBrowser.leftNavButton = buttonCloseWindow;
-			
-			buttonCloseWindow.addEventListener("click", function() {
-				winBase.close();
-			});
-
-			winBase.addEventListener("close", function() 
-			{
-				windowBrowser = null;
-				nav = null;
-				buttonCloseWindow = null;
-				webViewBrowser = null;
+	windowBrowser = Ti.UI.createWindow({
+		barColor:this.barColor,
+		backgroundColor:"#FFF"
+	});
 	
-				toolbarButtons = null;
-				buttonBack = null;
-				buttonForward = null;
-				buttonStop = null;
-				buttonRefresh = null;
-				buttonAction = null;
-				buttonSpace = null;
+	if (this.modal == true) 
+	{
+		winBase = Ti.UI.createWindow({
+			navBarHidden:true,
+			modal:true
+		});
+		nav = Ti.UI.iPhone.createNavigationGroup({
+			window:windowBrowser
+		});
+		winBase.add(nav);
+		
+		buttonCloseWindow = Ti.UI.createButton({
+			title:L("close","Close"),
+			style:Ti.UI.iPhone.SystemButtonStyle.DONE
+		});
+		windowBrowser.leftNavButton = buttonCloseWindow;
+		
+		buttonCloseWindow.addEventListener("click", function() {
+			winBase.close();
+		});
 
-				winBase = null;
-			});
-		}
-		
-		webViewBrowser = Ti.UI.createWebView({
-			url:this.url,
-			left:0,
-			top:0,
-			bottom:44,
-			width:"100%",
-			loading:false
-		});
-		windowBrowser.add(webViewBrowser);
-		
-		webViewBrowser.addEventListener("load", function() {
-			
-			activityIndicator.hide();
-			
-			windowBrowser.title = webViewBrowser.evalJS("document.title");
-		
-			buttonBack.enabled = webViewBrowser.canGoBack();
-			buttonForward.enabled = webViewBrowser.canGoForward();
-			buttonAction.enabled = true;
-			
-			actionsDialog.title = webViewBrowser.url;
-			
-			toolbarButtons.items = [
-				buttonBack,
-				buttonSpace,
-				buttonForward,
-				buttonSpace,
-				buttonRefresh,
-				buttonSpace,
-				buttonAction
-			];
-		
-		});
-		
-		webViewBrowser.addEventListener("beforeload", function() {
+		winBase.addEventListener("close", function() 
+		{
+			windowBrowser = null;
+			nav = null;
+			buttonCloseWindow = null;
+			webViewBrowser = null;
 
-			activityIndicator.show();
-			
-			buttonAction.enabled = false;
-		
-			toolbarButtons.items = [
-				buttonBack,
-				buttonSpace,
-				buttonForward,
-				buttonSpace,
-				buttonStop,
-				buttonSpace,
-				buttonAction
-			];
-		
-		});
-		
-		webViewBrowser.addEventListener("error", function() {
+			toolbarButtons = null;
+			buttonBack = null;
+			buttonForward = null;
+			buttonStop = null;
+			buttonRefresh = null;
+			buttonAction = null;
+			buttonSpace = null;
 
-			activityIndicator.hide();
+			winBase = null;
+		});
+	}
+	
+	webViewBrowser = Ti.UI.createWebView({
+		url:this.url,
+		left:0,
+		top:0,
+		bottom:(this.showToolbar) ? 44 : 0,
+		width:"100%",
+		loading:false
+	});
+	windowBrowser.add(webViewBrowser);
+	
+	webViewBrowser.addEventListener("load", function() {
+		
+		activityIndicator.hide();
+		
+		windowBrowser.title = webViewBrowser.evalJS("document.title");
+	
+		buttonBack.enabled = webViewBrowser.canGoBack();
+		buttonForward.enabled = webViewBrowser.canGoForward();
+		buttonAction.enabled = true;
+		
+		actionsDialog.title = webViewBrowser.url;
+		
+		toolbarButtons.items = [
+			buttonBack,
+			buttonSpace,
+			buttonForward,
+			buttonSpace,
+			buttonRefresh,
+			buttonSpace,
+			buttonAction
+		];
+	
+	});
+	
+	webViewBrowser.addEventListener("beforeload", function() {
 
-			buttonBack.enabled = webViewBrowser.canGoBack();
-			buttonForward.enabled = webViewBrowser.canGoForward();
-			buttonAction.enabled = true;
-			
-			actionsDialog.title = webViewBrowser.url;
-			
-			toolbarButtons.items = [
-				buttonBack,
-				buttonSpace,
-				buttonForward,
-				buttonSpace,
-				buttonRefresh,
-				buttonSpace,
-				buttonAction
-			];
+		activityIndicator.show();
 		
-		});
+		buttonAction.enabled = false;
+	
+		toolbarButtons.items = [
+			buttonBack,
+			buttonSpace,
+			buttonForward,
+			buttonSpace,
+			buttonStop,
+			buttonSpace,
+			buttonAction
+		];
+	
+	});
+	
+	webViewBrowser.addEventListener("error", function() {
+
+		activityIndicator.hide();
+
+		buttonBack.enabled = webViewBrowser.canGoBack();
+		buttonForward.enabled = webViewBrowser.canGoForward();
+		buttonAction.enabled = true;
 		
-		activityIndicator = Ti.UI.createActivityIndicator({
-			style:Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN
-		});
-		windowBrowser.rightNavButton = activityIndicator;
+		actionsDialog.title = webViewBrowser.url;
 		
+		toolbarButtons.items = [
+			buttonBack,
+			buttonSpace,
+			buttonForward,
+			buttonSpace,
+			buttonRefresh,
+			buttonSpace,
+			buttonAction
+		];
+	
+	});
+	
+	activityIndicator = Ti.UI.createActivityIndicator({
+		style:Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN
+	});
+	windowBrowser.rightNavButton = activityIndicator;
+	
+	if (this.showToolbar === true) {
 		this.initToolbar();
-		
-		return (this.modal == true) ? winBase : windowBrowser;
-	})();
+	}
+
+	this.openBrowser = function() {
+		var win = (this.modal == true) ? winBase : windowBrowser;
+		win.open();
+	}
 
 }
