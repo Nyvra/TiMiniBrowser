@@ -268,4 +268,8 @@ var MiniBrowser = function(dictionary)
 		win.open();
 	}
 
+	this.returnBrowser = function() {
+		return (this.modal == true) ? winBase : windowBrowser;
+	}
+
 }
