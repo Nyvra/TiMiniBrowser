@@ -262,6 +262,6 @@ var MiniBrowser = function(dictionary)
 		this.initToolbar();
 		
 		return (this.modal == true) ? winBase : windowBrowser;
-	)();
+	})();
 
 }
