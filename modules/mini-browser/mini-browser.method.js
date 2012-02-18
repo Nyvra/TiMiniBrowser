@@ -4,12 +4,14 @@ var MiniBrowser = function(dictionary)
 	this.backgroundColor = (dictionary.backgroundColor != "undefined") ? dictionary.backgroundColor : '#FFF';
 	this.barColor = (dictionary.barColor != "undefined") ? dictionary.barColor : Ti.UI.currentWindow.barColor;
 	this.modal = (dictionary.modal != "undefined") ? dictionary.modal : false;
-	this.showToolbar = (dictionary.showToolbar != "undefined") ? true : false;
+	this.showToolbar = (dictionary.showToolbar != "undefined" && typeof dictionary.showToolbar === 'boolean') ? dictionary.showToolbar : true;
 	this.html = (dictionary.html != 'undefined') ? dictionary.html : null;
 	this.windowRef = (dictionary.html != 'undefined') ? dictionary.windowRef : false;
-	this.showActivity = (dictionary.showActivity != 'undefined') ? true : false;
-	this.scaleToFit = (dictionary.scaleToFit != 'undefined') ? true : false;
+	this.windowTitle = (dictionary.windowTitle != 'undefined' ) ? dictionary.windowTitle : false;
+	this.showActivity = (dictionary.showActivity != 'undefined'&& typeof dictionary.showActivity === 'boolean') ? dictionary.showActivity : false;
+	this.scaleToFit = (dictionary.scaleToFit != 'undefined') ? dictionary.scaleToFit : false;
 	this.activityMessage = (dictionary.activityMessage != 'undefined') ? dictionary.activityMessage : 'Loading';
+	this.activityStyle = (dictionary.activityStyle !== 'undefined') ? dictionary.activityStyle : Ti.UI.iPhone.ActivityIndicatorStyle.PLAIN;
 
 	var winBase;
 	var nav;
@@ -27,32 +29,31 @@ var MiniBrowser = function(dictionary)
 	var buttonSpace;
 	
 	var actionDialog;
+	
+	var osname;
 /**
  * Initialise a lower toolbar with browser buttons
  */	
-	this.initToolbar = function()
-	{	
+
+	this.initToolbar = function() {
 		this.initActions();
 		buttonAction = Ti.UI.createButton({
 			enabled : false
 		});
-
 		buttonBack = Ti.UI.createButton({
-			image:"/modules/mini-browser/Icon-Back.png",
-			enabled:false
+			image : "/modules/mini-browser/Icon-Back.png",
+			enabled : false
 		});
 		buttonBack.addEventListener("click", function() {
 			webViewBrowser.goBack();
 		});
-		
 		buttonForward = Ti.UI.createButton({
-			image:"/modules/mini-browser/Icon-Forward.png",
-			enabled:false
+			image : "/modules/mini-browser/Icon-Forward.png",
+			enabled : false
 		});
 		buttonForward.addEventListener("click", function() {
 			webViewBrowser.goForward();
 		});
-		
 		buttonStop = Ti.UI.createButton();
 
 		if(Ti.Platform.osname !== 'android') {
@@ -63,7 +64,6 @@ var MiniBrowser = function(dictionary)
 			buttonStop.image = '/modules/mini-browser/Icon-Stop.png';
 		}
 
-		
 		buttonStop.addEventListener("click", function() {
 			activityIndicator.hide();
 			webViewBrowser.stopLoading();
@@ -72,7 +72,6 @@ var MiniBrowser = function(dictionary)
 			buttonAction.enabled = true;
 			actionsDialog.title = webViewBrowser.url;
 		});
-		
 		buttonRefresh = Ti.UI.createButton();
 		if(Ti.Platform.osname !== 'android') {
 			buttonRefresh.systemButton = Titanium.UI.iPhone.SystemButton.REFRESH;
@@ -82,9 +81,6 @@ var MiniBrowser = function(dictionary)
 		buttonRefresh.addEventListener("click", function() {
 			webViewBrowser.reload();
 		});
-		
-
-
 		if(Ti.Platform.osname !== 'android') {
 			buttonAction.systemButton = Titanium.UI.iPhone.SystemButton.ACTION;
 			buttonAction.addEventListener("click", function() {
@@ -95,12 +91,19 @@ var MiniBrowser = function(dictionary)
 			var actionsAct = windowBrowser.activity;
 			actionsAct.onCreateOptionsMenu = function(e) {
 				var menu = e.menu;
-				var menuItem = menu.add({
+				var shareItems = menu.add({
 					title : "Share"
 				});
-				menuItem.addEventListener("click", function() {
+				var closeWindow = menu.add({
+					title : "Close"
+				});
+				shareItems.addEventListener("click", function() {
 					actionsDialog.show();
 				});
+				closeWindow.addEventListener("click", function() {
+					actionsAct.finish();
+				});
+				
 			}
 		}
 
@@ -108,22 +111,21 @@ var MiniBrowser = function(dictionary)
 			buttonSpace = Ti.UI.createButton({
 				systemButton : Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 			});
-			
 			toolbarButtons = Ti.UI.iOS.createToolbar({
 				barColor : this.barColor,
 				bottom : 0,
 				height : 44
 			});
 			toolbarButtons.items = [buttonBack, buttonSpace, buttonForward, buttonSpace, buttonRefresh, buttonSpace, buttonAction];
-			
+
 		} else {
 			toolbarButtons = Ti.UI.createView({
-				height: 44,
-				bottom: 0,
+				height : 44,
+				bottom : 0,
 				backgroundColor : this.barColor,
-				layout: 'horizontal'
+				layout : 'horizontal'
 			});
-			var spacerWidth = (Ti.Platform.displayCaps.platformWidth - (44)) /4;
+			var spacerWidth = (Ti.Platform.displayCaps.platformWidth - (44)) / 4;
 			Ti.API.info(spacerWidth);
 			buttonBack.left = spacerWidth;
 			buttonForward.left = spacerWidth;
@@ -135,36 +137,30 @@ var MiniBrowser = function(dictionary)
 
 		windowBrowser.add(toolbarButtons);
 	},
-/**
- * Initialise the options dialog for the loaded URL
- */	
-	this.initActions = function()
-	{
+	/**
+	 * Initialise the options dialog for the loaded URL
+	 */
+	this.initActions = function() {
 		actionsDialog = Ti.UI.createOptionDialog({
-			options:[
-				L("copy_link", "Copy link"), 
-				L("open_safari", "Open in Safari"),
-				L("send_by_email","Send by email"),
-				L("cancel","Cancel")
-			],
-			cancel:3
+			options : [L("copy_link", "Copy link"), L("open_safari", "Open in Safari"), L("send_by_email", "Send by email"), L("cancel", "Cancel")],
+			cancel : 3
 		});
 
 		actionsDialog.addEventListener("click", function(e) {
 			switch(e.index) {
-				case 0: 
+				case 0:
 					Titanium.UI.Clipboard.setText(webViewBrowser.url);
 					break;
-				case 1: 
-					if (Titanium.Platform.canOpenURL(webViewBrowser.url)) {
+				case 1:
+					if(Titanium.Platform.canOpenURL(webViewBrowser.url)) {
 						Titanium.Platform.openURL(webViewBrowser.url);
 					}
 					break;
 				case 2:
 					var emailDialog = Titanium.UI.createEmailDialog({
-						barColor:windowBrowser.barColor
+						barColor : windowBrowser.barColor
 					});
-					
+
 					emailDialog.subject = windowBrowser.title;
 					emailDialog.messageBody = webViewBrowser.url;
 					emailDialog.open();
@@ -173,8 +169,8 @@ var MiniBrowser = function(dictionary)
 					break;
 			}
 		});
-		
 	}
+
 
 /**
  * Allow the browser to be attached to an existing window within your application, or create a new window object
@@ -188,6 +184,7 @@ var MiniBrowser = function(dictionary)
 	} else {
 		windowBrowser = this.windowRef;
 	}
+	
 
 	if(this.showToolbar == true) {
 		this.initToolbar();
@@ -197,19 +194,29 @@ var MiniBrowser = function(dictionary)
 	
 	
 	if(this.modal == true) {
-		windowBrowser.navBarHidden = true;
-		windowBrowser.modal = true;
-		buttonCloseWindow = Ti.UI.createButton({
-			title : L("close", "Close"),
-			style : Ti.UI.iPhone.SystemButtonStyle.DONE
-		});
-		windowBrowser.leftNavButton = buttonCloseWindow;
-
-		buttonCloseWindow.addEventListener("click", function() {
-			winBase.close();
+		winBase = Ti.UI.createWindow({
+			navBarHidden : true,
+			modal : true
 		});
 
-		windowBrowser.addEventListener("close", function() {
+
+		if(Ti.Platform.osname !== 'android') {
+			nav = Ti.UI.iPhone.createNavigationGroup({
+				window : windowBrowser
+			});
+			winBase.add(nav);
+			buttonCloseWindow = Ti.UI.createButton({
+				title : L("close", "Close"),
+				style : Ti.UI.iPhone.SystemButtonStyle.DONE
+			});
+			windowBrowser.leftNavButton = buttonCloseWindow;
+
+			buttonCloseWindow.addEventListener("click", function() {
+				winBase.close();
+			});
+		}
+
+		winBase.addEventListener("close", function() {
 			windowBrowser = null;
 			nav = null;
 			buttonCloseWindow = null;
@@ -234,13 +241,14 @@ var MiniBrowser = function(dictionary)
 		width:"100%",
 		loading:false
 	});
+	webViewBrowser.title = (this.windowTitle) ? this.windowTitle : false;
 	windowBrowser.add(webViewBrowser);
 	
 	webViewBrowser.addEventListener("load", function() {
 		
 		activityIndicator.hide();
-		
-		windowBrowser.title = webViewBrowser.evalJS("document.title");
+		Ti.API.info(webViewBrowser.title);
+		windowBrowser.title = (webViewBrowser.title) ? webViewBrowser.title : webViewBrowser.evalJS("document.title");
 	
 		buttonBack.enabled = webViewBrowser.canGoBack();
 		buttonForward.enabled = webViewBrowser.canGoForward();
@@ -301,14 +309,19 @@ var MiniBrowser = function(dictionary)
 	});
 	
 	activityIndicator = Ti.UI.createActivityIndicator({
-		style:Titanium.UI.iPhone.ActivityIndicatorStyle.PLAIN
+		message: this.activityMessage
 	});
-	windowBrowser.rightNavButton = activityIndicator;
 	
-
-
+	if(Ti.Platform.osname !== 'android'){
+		activityIndicator.style = this.activityStyle;
+		windowBrowser.rightNavButton = activityIndicator;
+	} else {
+		
+	}
+	
 	this.openBrowser = function() {
-		windowBrowser.open();
+		var win = (this.modal === true) ? winBase : windowBrowser;
+		win.open();
 	}
 
 	this.returnBrowser = function() {
