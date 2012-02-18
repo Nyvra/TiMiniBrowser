@@ -1,17 +1,17 @@
 var MiniBrowser = function(dictionary) 
 {
 	this.url = dictionary.url;
-	this.backgroundColor = (dictionary.backgroundColor != "undefined") ? dictionary.backgroundColor : '#FFF';
-	this.barColor = (dictionary.barColor != "undefined") ? dictionary.barColor : Ti.UI.currentWindow.barColor;
-	this.modal = (dictionary.modal != "undefined") ? dictionary.modal : false;
-	this.showToolbar = (dictionary.showToolbar != "undefined" && typeof dictionary.showToolbar === 'boolean') ? dictionary.showToolbar : true;
-	this.html = (dictionary.html != 'undefined') ? dictionary.html : null;
-	this.windowRef = (dictionary.html != 'undefined') ? dictionary.windowRef : false;
-	this.windowTitle = (dictionary.windowTitle != 'undefined' ) ? dictionary.windowTitle : false;
-	this.showActivity = (dictionary.showActivity != 'undefined'&& typeof dictionary.showActivity === 'boolean') ? dictionary.showActivity : false;
-	this.scaleToFit = (dictionary.scaleToFit != 'undefined') ? dictionary.scaleToFit : false;
-	this.activityMessage = (dictionary.activityMessage != 'undefined') ? dictionary.activityMessage : 'Loading';
-	this.activityStyle = (dictionary.activityStyle !== 'undefined') ? dictionary.activityStyle : Ti.UI.iPhone.ActivityIndicatorStyle.PLAIN;
+	this.backgroundColor = (dictionary.backgroundColor !== undefined) ? dictionary.backgroundColor : '#FFF';
+	this.barColor = (dictionary.barColor !== undefined) ? dictionary.barColor : Ti.UI.currentWindow.barColor;
+	this.modal = (dictionary.modal !== undefined) ? dictionary.modal : false;
+	this.showToolbar = (dictionary.showToolbar !== undefined && typeof dictionary.showToolbar === 'boolean') ? dictionary.showToolbar : true;
+	this.html = (dictionary.html !== undefined) ? dictionary.html : null;
+	this.windowRef = (dictionary.html !== undefined) ? dictionary.windowRef : false;
+	this.windowTitle = (dictionary.windowTitle !== undefined ) ? dictionary.windowTitle : false;
+	this.showActivity = (dictionary.showActivity !== undefined && typeof dictionary.showActivity === 'boolean') ? dictionary.showActivity : false;
+	this.scaleToFit = (dictionary.scaleToFit !== undefined) ? dictionary.scaleToFit : false;
+	this.activityMessage = (dictionary.activityMessage !== undefined) ? dictionary.activityMessage : "Loading";
+	this.activityStyle = (dictionary.activityStyle !== undefined) ? dictionary.activityStyle : Ti.UI.iPhone.ActivityIndicatorStyle.PLAIN;
 
 	var winBase;
 	var nav;
@@ -36,7 +36,6 @@ var MiniBrowser = function(dictionary)
  */	
 
 	this.initToolbar = function() {
-		this.initActions();
 		buttonAction = Ti.UI.createButton({
 			enabled : false
 		});
@@ -87,24 +86,7 @@ var MiniBrowser = function(dictionary)
 				actionsDialog.show();
 			});
 		} else {
-			// actions in menu for android
-			var actionsAct = windowBrowser.activity;
-			actionsAct.onCreateOptionsMenu = function(e) {
-				var menu = e.menu;
-				var shareItems = menu.add({
-					title : "Share"
-				});
-				var closeWindow = menu.add({
-					title : "Close"
-				});
-				shareItems.addEventListener("click", function() {
-					actionsDialog.show();
-				});
-				closeWindow.addEventListener("click", function() {
-					actionsAct.finish();
-				});
-				
-			}
+
 		}
 
 		if(Ti.Platform.osname !== 'android') {
@@ -120,7 +102,7 @@ var MiniBrowser = function(dictionary)
 
 		} else {
 			toolbarButtons = Ti.UI.createView({
-				height : 44,
+				height : 54,
 				bottom : 0,
 				backgroundColor : this.barColor,
 				layout : 'horizontal'
@@ -171,12 +153,30 @@ var MiniBrowser = function(dictionary)
 		});
 	}
 
-
+	this.initAndroidMenu = function(){
+		// actions in menu for android
+		var actionsAct = windowBrowser.activity;
+		actionsAct.onCreateOptionsMenu = function(e) {
+			var menu = e.menu;
+			var shareItems = menu.add({
+				title : "Share"
+			});
+			var closeWindow = menu.add({
+				title : "Close"
+			});
+			shareItems.addEventListener("click", function() {
+				actionsDialog.show();
+			});
+			closeWindow.addEventListener("click", function() {
+				windowBrowser.close();
+			});
+		}
+	}
 /**
  * Allow the browser to be attached to an existing window within your application, or create a new window object
  */
-
-	if(this.windowRef != true) {
+	
+	if(!this.windowRef) {
 		windowBrowser = Ti.UI.createWindow({
 			barColor : this.barColor,
 			backgroundColor : this.backgroundColor
@@ -184,14 +184,13 @@ var MiniBrowser = function(dictionary)
 	} else {
 		windowBrowser = this.windowRef;
 	}
-	
-
+	this.initActions();
+	if(Ti.Platform.osname === 'android') {
+		this.initAndroidMenu();
+	}
 	if(this.showToolbar == true) {
 		this.initToolbar();
 	}
-
-
-	
 	
 	if(this.modal == true) {
 		winBase = Ti.UI.createWindow({
@@ -214,22 +213,24 @@ var MiniBrowser = function(dictionary)
 			buttonCloseWindow.addEventListener("click", function() {
 				winBase.close();
 			});
+			winBase.addEventListener("close", function() {
+				windowBrowser = null;
+				this.windowRef = null;
+				nav = null;
+				buttonCloseWindow = null;
+				webViewBrowser = null;
+				toolbarButtons = null;
+				buttonBack = null;
+				buttonForward = null;
+				buttonStop = null;
+				buttonRefresh = null;
+				buttonAction = null;
+				buttonSpace = null;
+				winBase = null;
+			});
+		} else {
+			windowBrowser.modal = true;
 		}
-
-		winBase.addEventListener("close", function() {
-			windowBrowser = null;
-			nav = null;
-			buttonCloseWindow = null;
-			webViewBrowser = null;
-			toolbarButtons = null;
-			buttonBack = null;
-			buttonForward = null;
-			buttonStop = null;
-			buttonRefresh = null;
-			buttonAction = null;
-			buttonSpace = null;
-			winBase = null;
-		});
 	}
 
 	
@@ -307,7 +308,6 @@ var MiniBrowser = function(dictionary)
 		];
 	
 	});
-	
 	activityIndicator = Ti.UI.createActivityIndicator({
 		message: this.activityMessage
 	});
@@ -315,12 +315,13 @@ var MiniBrowser = function(dictionary)
 	if(Ti.Platform.osname !== 'android'){
 		activityIndicator.style = this.activityStyle;
 		windowBrowser.rightNavButton = activityIndicator;
+		activityIndicator.message = null; // until indicator method is changed null it out.
 	} else {
 		
 	}
 	
 	this.openBrowser = function() {
-		var win = (this.modal === true) ? winBase : windowBrowser;
+		var win = (this.modal === true && Ti.Platform.osname !== 'android') ? winBase : windowBrowser;
 		win.open();
 	}
 
