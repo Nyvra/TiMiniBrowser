@@ -4,6 +4,7 @@ var MiniBrowser = function(dictionary)
 	this.backgroundColor = (dictionary.backgroundColor !== undefined) ? dictionary.backgroundColor : '#FFF';
 	this.barColor = (dictionary.barColor !== undefined) ? dictionary.barColor : Ti.UI.currentWindow.barColor;
 	this.modal = (dictionary.modal !== undefined) ? dictionary.modal : false;
+	this.modalStyle = (dictionary.modalStyle !== undefined) ? dictionary.modalStyle : false;
 	this.showToolbar = (dictionary.showToolbar !== undefined && typeof dictionary.showToolbar === 'boolean') ? dictionary.showToolbar : true;
 	this.html = (dictionary.html !== undefined) ? dictionary.html : null;
 	this.windowRef = (dictionary.html !== undefined) ? dictionary.windowRef : false;
@@ -202,7 +203,8 @@ var MiniBrowser = function(dictionary)
 			navBarHidden : true,
 			modal : true
 		});
-
+		
+		
 
 		if(osname !== 'android') {
 			nav = Ti.UI.iPhone.createNavigationGroup({
@@ -338,7 +340,15 @@ var MiniBrowser = function(dictionary)
 		var win = (this.modal === true && osname !== 'android') ? winBase : windowBrowser;
 			Ti.API.info('window open browser section: ' + win);
 			try{
-				win.open();
+				if(osname !== 'android' && this.modalStyle && this.modal){
+					win.open({
+						modal: true,
+						modalTransitionStyle: this.modalStyle
+					});
+				} else {
+					win.open();
+				}
+				
 			} catch(e){
 				Ti.API.error(e.message);
 			}
