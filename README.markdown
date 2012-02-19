@@ -16,7 +16,7 @@
 	
 	<li><b>windowTitle:</b> (STRING) Customise the title in the nav bar. Default is <em>URL title</em>.</li>
 	<li><b>activityMessage:</b> (STRING) Android Activity Indicator has space for a text message. Default is set to <em>'Loading'</em>. Disabled for iOS currently</li>
-	<li>     Experimental (not fully tested properties)
+	   Experimental (not fully tested properties)
 		<ul>
 		<li><b>html:</b> (BOOL) If you wanna parse custom HTML you can use this. Default is true.</li>
 		<li><b>scaleToFit:</b> (BOOL) If you wanna parse custom HTML you can use this. Default is true.</li>
@@ -24,7 +24,7 @@
 		<li><b>windowRef:</b> (BOOL) If you wanna parse custom HTML you can use this. Default is true.</li>
 		<li><b>activityStyle:</b> (Ti OBJ) A Ti activity indicator style object.</li>
 		</ul>
-	</li>
+
 </ul>
 
 <h1>Methods</h1>
