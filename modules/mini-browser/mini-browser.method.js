@@ -31,9 +31,8 @@ var MiniBrowser = function(dictionary)
 	var actionDialog;
 	
 	var osname;
-/**
- * Initialise a lower toolbar with browser buttons
- */	
+	
+	osname = Ti.Platform.osname;
 
 	this.initToolbar = function() {
 		buttonAction = Ti.UI.createButton({
@@ -55,7 +54,7 @@ var MiniBrowser = function(dictionary)
 		});
 		buttonStop = Ti.UI.createButton();
 
-		if(Ti.Platform.osname !== 'android') {
+		if(osname !== 'android') {
 
 			buttonStop.systemButton = Titanium.UI.iPhone.SystemButton.STOP
 
@@ -72,7 +71,7 @@ var MiniBrowser = function(dictionary)
 			actionsDialog.title = webViewBrowser.url;
 		});
 		buttonRefresh = Ti.UI.createButton();
-		if(Ti.Platform.osname !== 'android') {
+		if(osname !== 'android') {
 			buttonRefresh.systemButton = Titanium.UI.iPhone.SystemButton.REFRESH;
 		} else {
 			buttonRefresh.image = '/modules/mini-browser/Icon-Reload.png';
@@ -80,7 +79,7 @@ var MiniBrowser = function(dictionary)
 		buttonRefresh.addEventListener("click", function() {
 			webViewBrowser.reload();
 		});
-		if(Ti.Platform.osname !== 'android') {
+		if(osname !== 'android') {
 			buttonAction.systemButton = Titanium.UI.iPhone.SystemButton.ACTION;
 			buttonAction.addEventListener("click", function() {
 				actionsDialog.show();
@@ -89,7 +88,7 @@ var MiniBrowser = function(dictionary)
 
 		}
 
-		if(Ti.Platform.osname !== 'android') {
+		if(osname !== 'android') {
 			buttonSpace = Ti.UI.createButton({
 				systemButton : Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 			});
@@ -116,15 +115,15 @@ var MiniBrowser = function(dictionary)
 			toolbarButtons.add(buttonForward);
 			toolbarButtons.add(buttonRefresh);
 		}
-
-		windowBrowser.add(toolbarButtons);
+		return toolbarButtons;
+		
 	},
 	/**
 	 * Initialise the options dialog for the loaded URL
 	 */
 	this.initActions = function() {
 		actionsDialog = Ti.UI.createOptionDialog({
-			options : [L("copy_link", "Copy link"), L("open_safari", "Open in Safari"), L("send_by_email", "Send by email"), L("cancel", "Cancel")],
+			options : [L("copy_link", "Copy link"), L("open_browser", "Open in Browser"), L("send_by_email", "Send by email"), L("cancel", "Cancel")],
 			cancel : 3
 		});
 
@@ -134,9 +133,14 @@ var MiniBrowser = function(dictionary)
 					Titanium.UI.Clipboard.setText(webViewBrowser.url);
 					break;
 				case 1:
-					if(Titanium.Platform.canOpenURL(webViewBrowser.url)) {
-						Titanium.Platform.openURL(webViewBrowser.url);
+					if(osname !== 'android'){
+						if(Titanium.Platform.canOpenURL(webViewBrowser.url)) {
+						var loadURL = true;
+						}
+					} else {
+						loadURL = true
 					}
+					if(loadURL) Titanium.Platform.openURL(webViewBrowser.url);
 					break;
 				case 2:
 					var emailDialog = Titanium.UI.createEmailDialog({
@@ -152,10 +156,27 @@ var MiniBrowser = function(dictionary)
 			}
 		});
 	}
-
-	this.initAndroidMenu = function(){
-		// actions in menu for android
+/**
+ * Allow the browser to be attached to an existing window within your application, or create a new window object
+ */
+	Ti.API.info('window object passed thorugh is: ' + this.windowRef);
+	if(!this.windowRef) {
+		windowBrowser = Ti.UI.createWindow({
+			backgroundColor : this.backgroundColor
+		});
+		
+	} else {
+		windowBrowser = this.windowRef;
+	}
+	if(osname === 'android') {
+		windowBrowser.barColor = this.barColor;
+	}
+	
+	this.initActions();
+	if(osname === 'android') {
+		Ti.API.debug('Android Activity setup');
 		var actionsAct = windowBrowser.activity;
+		Ti.API.debug('Window Activity assigned');
 		actionsAct.onCreateOptionsMenu = function(e) {
 			var menu = e.menu;
 			var shareItems = menu.add({
@@ -168,38 +189,22 @@ var MiniBrowser = function(dictionary)
 				actionsDialog.show();
 			});
 			closeWindow.addEventListener("click", function() {
+				Ti.API.debug('Close window click handler');
 				windowBrowser.close();
 			});
 		}
+		Ti.API.debug(windowBrowser + ' Window setup');
 	}
-/**
- * Allow the browser to be attached to an existing window within your application, or create a new window object
- */
+
 	
-	if(!this.windowRef) {
-		windowBrowser = Ti.UI.createWindow({
-			barColor : this.barColor,
-			backgroundColor : this.backgroundColor
-		});
-	} else {
-		windowBrowser = this.windowRef;
-	}
-	this.initActions();
-	if(Ti.Platform.osname === 'android') {
-		this.initAndroidMenu();
-	}
-	if(this.showToolbar == true) {
-		this.initToolbar();
-	}
-	
-	if(this.modal == true) {
+	if(this.modal === true) {
 		winBase = Ti.UI.createWindow({
 			navBarHidden : true,
 			modal : true
 		});
 
 
-		if(Ti.Platform.osname !== 'android') {
+		if(osname !== 'android') {
 			nav = Ti.UI.iPhone.createNavigationGroup({
 				window : windowBrowser
 			});
@@ -274,16 +279,18 @@ var MiniBrowser = function(dictionary)
 		activityIndicator.show();
 		
 		buttonAction.enabled = false;
-	
-		toolbarButtons.items = [
-			buttonBack,
-			buttonSpace,
-			buttonForward,
-			buttonSpace,
-			buttonStop,
-			buttonSpace,
-			buttonAction
-		];
+		if(osname !== 'android'){
+			toolbarButtons.items = [
+				buttonBack,
+				buttonSpace,
+				buttonForward,
+				buttonSpace,
+				buttonStop,
+				buttonSpace,
+				buttonAction
+			];
+		}
+		
 	
 	});
 	
@@ -308,26 +315,39 @@ var MiniBrowser = function(dictionary)
 		];
 	
 	});
+
+	if(this.showToolbar === true) {
+		var toolbar = this.initToolbar();
+		windowBrowser.add(toolbar);
+	}
+	Ti.API.info('After toolbar added');
 	activityIndicator = Ti.UI.createActivityIndicator({
 		message: this.activityMessage
 	});
 	
-	if(Ti.Platform.osname !== 'android'){
+	if(osname !== 'android'){
 		activityIndicator.style = this.activityStyle;
 		windowBrowser.rightNavButton = activityIndicator;
 		activityIndicator.message = null; // until indicator method is changed null it out.
+		Ti.API.info('Act indicator section');
 	} else {
 		
 	}
 	
 	this.openBrowser = function() {
-		var win = (this.modal === true && Ti.Platform.osname !== 'android') ? winBase : windowBrowser;
-		win.open();
-	}
+		var win = (this.modal === true && osname !== 'android') ? winBase : windowBrowser;
+			Ti.API.info('window open browser section: ' + win);
+			try{
+				win.open();
+			} catch(e){
+				Ti.API.error(e.message);
+			}
+		
+	},
 
 	this.returnBrowser = function() {
 		return windowBrowser;
-	}
+	},
 	
 	this.returnWebView = function() {
 		return webViewBrowser;
