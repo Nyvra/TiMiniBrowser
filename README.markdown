@@ -19,9 +19,9 @@
 	   Experimental (not fully tested properties)
 		<ul>
 		<li><b>html:</b> (BOOL) If you wanna parse custom HTML you can use this. Default is true.</li>
-		<li><b>scaleToFit:</b> (BOOL) If you wanna parse custom HTML you can use this. Default is true.</li>
-		<li><b>showActivity:</b> (BOOL) If you wanna parse custom HTML you can use this. Default is true.</li>
-		<li><b>windowRef:</b> (BOOL) If you wanna parse custom HTML you can use this. Default is true.</li>
+		<li><b>scaleToFit:</b> (BOOL) toggle the webview scaleToFit property.</li>
+		<li><b>showActivity:</b> (BOOL) Disable the activity Indicator.</li>
+		<li><b>windowRef:</b> (OBJ) Pass through your own window object reference.</li>
 		<li><b>activityStyle:</b> (Ti OBJ) A Ti activity indicator style object.</li>
 		</ul>
 
