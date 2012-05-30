@@ -367,4 +367,12 @@ var MiniBrowser = function(dictionary)
 //create a blank object, just in case the user is still using the old Ti.include method
 exports = exports || {};
 
+<<<<<<< HEAD
+=======
+}
+
+//create a blank object, just in case the user is still using the old Ti.include method
+exports = exports || {};
+
+>>>>>>> upstream/master
 exports.MiniBrowser = MiniBrowser;
