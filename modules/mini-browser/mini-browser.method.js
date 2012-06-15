@@ -1,18 +1,26 @@
 var MiniBrowser = function(dictionary) {
+
+	var isUndefined = function(value, type) {
+		if (typeof dictionary[value] != 'undefined')
+			if (typeof type == 'undefined' || typeof dictionary[value] == type)
+				return false;
+		return true;
+	}
+
 	this.url = dictionary.url;
-	this.backgroundColor = (dictionary.backgroundColor !== undefined) ? dictionary.backgroundColor : '#FFF';
-	this.barColor = (dictionary.barColor !== undefined) ? dictionary.barColor : Ti.UI.currentWindow.barColor;
-	this.modal = (dictionary.modal !== undefined) ? dictionary.modal : false;
-	this.modalStyle = (dictionary.modalStyle !== undefined) ? dictionary.modalStyle : false;
-	this.showToolbar = (dictionary.showToolbar !== undefined && typeof dictionary.showToolbar === 'boolean') ? dictionary.showToolbar : true;
-	this.html = (dictionary.html !== undefined) ? dictionary.html : null;
-	this.windowRef = (dictionary.html !== undefined) ? dictionary.windowRef : false;
-	this.shareButton = (dictionary.shareButton !== undefined) ? dictionary.shareButton : true;
-	this.windowTitle = (dictionary.windowTitle !== undefined ) ? dictionary.windowTitle : false;
-	this.showActivity = (dictionary.showActivity !== undefined && typeof dictionary.showActivity === 'boolean') ? dictionary.showActivity : false;
-	this.scaleToFit = (dictionary.scaleToFit !== undefined) ? dictionary.scaleToFit : false;
-	this.activityMessage = (dictionary.activityMessage !== undefined) ? dictionary.activityMessage : "Loading";
-	this.activityStyle = (dictionary.activityStyle !== undefined) ? dictionary.activityStyle : Ti.UI.iPhone.ActivityIndicatorStyle.PLAIN;
+	this.backgroundColor = (isUndefined('backgroundColor')) ? '#FFF' : dictionary.backgroundColor;
+	this.barColor = (isUndefined('barColor')) ? undefined : dictionary.barColor;
+	this.modal = (isUndefined('modal')) ? false : dictionary.modal;
+	this.modalStyle = (isUndefined('modalStyle')) ? false : dictionary.modalStyle;
+	this.showToolbar = (isUndefined('showToolbar', 'boolean')) ? true : dictionary.showToolbar;
+	this.html = (isUndefined('html')) ? null : dictionary.html;
+	this.windowRef = (isUndefined('windowRef')) ? false : dictionary.windowRef;
+	this.shareButton = (isUndefined('shareButton')) ? true : dictionary.shareButton;
+	this.windowTitle = (isUndefined('windowTitle')) ? false : dictionary.windowTitle;
+	this.showActivity = (isUndefined('showActivity', 'boolean')) ? false : dictionary.showActivity;
+	this.scaleToFit = (isUndefined('scaleToFit')) ? false : dictionary.scaleToFit;
+	this.activityMessage = (isUndefined('activityMessage')) ? "Loading" : dictionary.activityMessage;
+	this.activityStyle = (isUndefined('activityStyle')) ? Ti.UI.iPhone.ActivityIndicatorStyle.PLAIN : dictionary.activityStyle;
 
 	var winBase;
 	var nav;
