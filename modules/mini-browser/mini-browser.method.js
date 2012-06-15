@@ -81,6 +81,8 @@ var MiniBrowser = function(dictionary) {
 			buttonForward.enabled = webViewBrowser.canGoForward();
 			buttonAction.enabled = true;
 			actionsDialog.title = webViewBrowser.url;
+
+			toolbarButtons.items = [buttonBack, buttonSpace, buttonForward, buttonSpace, buttonRefresh, buttonSpace, buttonAction];
 		});
 
 		buttonRefresh = Ti.UI.createButton();
@@ -307,7 +309,11 @@ var MiniBrowser = function(dictionary) {
 
 	webViewBrowser.addEventListener("load", function() {
 
+		if (!isAndroid)
+			windowBrowser.setRightNavButton(null);
+
 		activityIndicator.hide();
+		
 		windowBrowser.title = (webViewBrowser.title) ? webViewBrowser.title : webViewBrowser.evalJS("document.title");
 		actionsDialog.title = webViewBrowser.url;
 
@@ -322,6 +328,9 @@ var MiniBrowser = function(dictionary) {
 	});
 
 	webViewBrowser.addEventListener("beforeload", function() {
+
+		if (!isAndroid)
+			windowBrowser.setRightNavButton(activityIndicator);
 
 		activityIndicator.show();
 
@@ -357,8 +366,8 @@ var MiniBrowser = function(dictionary) {
 	});
 
 	if (!isAndroid) {
-		activityIndicator.style = this.activityStyle;
-		windowBrowser.rightNavButton = activityIndicator;
+		activityIndicator.setStyle(this.activityStyle);
+		windowBrowser.setRightNavButton(activityIndicator);
 		activityIndicator.message = null;
 	}
 
