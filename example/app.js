@@ -1,4 +1,4 @@
-Ti.include("modules/mini-browser/mini-browser.method.js");
+var browser = require("modules/mini-browser/mini-browser.method");
 
 var windowBase = Ti.UI.createWindow({
 	backgroundColor:"#FFF"
@@ -14,10 +14,13 @@ windowBase.add(buttonOpenMobileBrowser);
 
 buttonOpenMobileBrowser.addEventListener("click", function() {
 
-	var browser = new MiniBrowser({
+	browser.MiniBrowser({
 		url:"http://www.treinamentos.mobi",
 		barColor:"#000",
-		modal:true
+		showToolbar: true,
+		modal: true,
+		windowTitle: 'Mini Browser',
+		activityMessage: 'Loading Page'
 	});
 	
 	browser.openBrowser();
