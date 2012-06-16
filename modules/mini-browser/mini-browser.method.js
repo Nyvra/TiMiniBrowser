@@ -1,11 +1,16 @@
-var MiniBrowser = function(dictionary) {
+var MiniBrowser = function (dictionary) {
+    "use strict";
+    // initialise all variables in once to conform to strict JS lint
+    var winBase, nav, windowBrowser, webViewBrowser, buttonCloseWindow, activityIndicator, toolbarButtons, buttonBack, buttonForward, buttonStop, buttonRefresh, buttonAction, buttonSpace, actionDialog, osname, actionsDialog, loadURL, items, spacerWidth, that, closeWindow, menu, shareItems, actionsAct, errMsg, toolbar, isAndroid, isUndefined, emailDialog, localHTML;
 
-	var isUndefined = function(value, type) {
-		if (typeof dictionary[value] != 'undefined')
-			if (typeof type == 'undefined' || typeof dictionary[value] == type)
+	isUndefined = function (value, type) {
+		if (typeof dictionary[value] !== undefined) {
+			if (typeof type === "undefined" || typeof dictionary[value] === type) {
 				return false;
-		return true;
-	}
+			}
+	        return true;
+		}
+	};
 
 	this.url = dictionary.url;
 	this.backgroundColor = (isUndefined('backgroundColor')) ? '#FFF' : dictionary.backgroundColor;
@@ -21,29 +26,28 @@ var MiniBrowser = function(dictionary) {
 	this.scaleToFit = (isUndefined('scaleToFit')) ? false : dictionary.scaleToFit;
 	this.activityMessage = (isUndefined('activityMessage')) ? "Loading" : dictionary.activityMessage;
 	this.activityStyle = (isUndefined('activityStyle')) ? Ti.UI.iPhone.ActivityIndicatorStyle.PLAIN : dictionary.activityStyle;
+    that = this;
 
-	var winBase, nav, windowBrowser, webViewBrowser, buttonCloseWindow, activityIndicator, toolbarButtons, buttonBack, buttonForward, buttonStop, buttonRefresh, buttonAction, buttonSpace, actionDialog, osname, actionsDialog, loadURL, items, spacerWidth, that, closeWindow, menu, shareItems, actionsAct, errMsg, toolbar, isAndroid;
-
-	this.initToolbar = function() {
+	this.initToolbar = function () {
 
 		buttonAction = Ti.UI.createButton({
 			enabled : false
 		});
-		
+
 		buttonBack = Ti.UI.createButton({
 			image : "/modules/mini-browser/Icon-Back.png",
 			enabled : false
 		});
-		
+
 		buttonBack.addEventListener("click", function () {
 			webViewBrowser.goBack();
 		});
-		
+
 		buttonForward = Ti.UI.createButton({
 			image : "/modules/mini-browser/Icon-Forward.png",
 			enabled : false
 		});
-		
+
 		buttonForward.addEventListener("click", function () {
 			webViewBrowser.goForward();
 		});
@@ -51,7 +55,7 @@ var MiniBrowser = function(dictionary) {
 		buttonStop = Ti.UI.createButton();
 
 		if (!isAndroid) {
-			buttonStop.systemButton = Titanium.UI.iPhone.SystemButton.STOP
+			buttonStop.systemButton = Titanium.UI.iPhone.SystemButton.STOP;
 		} else {
 			buttonStop.image = '/modules/mini-browser/Icon-Stop.png';
 		}
@@ -74,7 +78,7 @@ var MiniBrowser = function(dictionary) {
 		} else {
 			buttonRefresh.image = '/modules/mini-browser/Icon-Reload.png';
 		}
-	buttonRefresh.addEventListener("click", function() {
+	    buttonRefresh.addEventListener("click", function () {
 			webViewBrowser.reload();
 		});
 
@@ -125,11 +129,11 @@ var MiniBrowser = function(dictionary) {
 	};
 
 	this.header = function () {
-		return '<!DOCTYPE HTML> 	<html> 	<head> 		<meta http-equiv="Content-type" content="text/html; charset=utf-8"> 		<title>Page Title</title> 	<link rel="stylesheet" type="text/css" href="./modules/mini-browser/local.css" />	</head> 	<body>';
+		return '<!DOCTYPE HTML> <html> <head> <meta http-equiv="Content-type" content="text/html; charset=utf-8"> <title>Page Title</title> <link rel="stylesheet" type="text/css" href="./modules/mini-browser/local.css" /> </head> <body>';
 	};
 
 	this.footer = function () {
-		return '</body> 	 	</html>';
+		return '</body> </html>';
 	};
 	/**
 	 * Initialise the options dialog for the loaded URL
@@ -145,38 +149,39 @@ var MiniBrowser = function(dictionary) {
 			cancel : 3
 		});
 
-		actionsDialog.addEventListener("click", function(e) {
+		actionsDialog.addEventListener("click", function (e) {
 
 			switch (e.index) {
 
-				case 0:
-					Titanium.UI.Clipboard.setText(webViewBrowser.url);
-					break;
+			case 0:
+				Titanium.UI.Clipboard.setText(webViewBrowser.url);
+				break;
 
-				case 1:
-					if (!isAndroid) {
-						if (Titanium.Platform.canOpenURL(webViewBrowser.url)) {
-							var loadURL = true;
-						}
-					} else {
-						loadURL = true
+			case 1:
+				if (!isAndroid) {
+					if (Titanium.Platform.canOpenURL(webViewBrowser.url)) {
+						loadURL = true;
 					}
-					if (loadURL)
-						Titanium.Platform.openURL(webViewBrowser.url);
-					break;
+				} else {
+					loadURL = true;
+				}
+				if (loadURL) {
+					Ti.Platform.openURL(webViewBrowser.url);
+				}
+				break;
 
-				case 2:
-					var emailDialog = Titanium.UI.createEmailDialog({
-						barColor : windowBrowser.barColor
-					});
+			case 2:
+				emailDialog = Titanium.UI.createEmailDialog({
+					barColor : windowBrowser.barColor
+				});
 
-					emailDialog.subject = windowBrowser.title;
-					emailDialog.messageBody = webViewBrowser.url;
-					emailDialog.open();
-					break;
+				emailDialog.subject = windowBrowser.title;
+				emailDialog.messageBody = webViewBrowser.url;
+				emailDialog.open();
+				break;
 
-				default:
-					break;
+			default:
+				break;
 			}
 		});
 	};
@@ -199,15 +204,13 @@ var MiniBrowser = function(dictionary) {
 
 	this.initActions();
 
-	that = this;
 	if (isAndroid) {
-
-		var actionsAct = windowBrowser.activity;
-		actionsAct.onCreateOptionsMenu = function(e) {
+		actionsAct = windowBrowser.activity;
+		actionsAct.onCreateOptionsMenu = function (e) {
 			var menu = e.menu;
-			
+
 			if (that.shareButton) {
-				var shareItems = menu.add({
+				shareItems = menu.add({
 					title: "Share"
 				});
 				shareItems.addEventListener("click", function () {
@@ -219,10 +222,10 @@ var MiniBrowser = function(dictionary) {
 				title: "Close"
 			});
 
-			closeWindow.addEventListener("click", function() {
+			closeWindow.addEventListener("click", function () {
 				windowBrowser.close();
 			});
-		}
+		};
 
 	}
 
@@ -277,7 +280,7 @@ var MiniBrowser = function(dictionary) {
 		if (!this.html) {
 			webViewBrowser.url = this.url;
 		} else {
-			var localHTML = this.header();
+			localHTML = this.header();
 			localHTML += this.html;
 			localHTML += this.footer();
 			Ti.API.info(localHTML);
@@ -292,17 +295,17 @@ var MiniBrowser = function(dictionary) {
 		alert('Error ' + errMsg);
 	}
 
-	webViewBrowser.title = (this.windowTitle) ? this.windowTitle : false;
+	webViewBrowser.title = (isUndefined(this.windowTitle)) ? false : this.windowTitle;
 	windowBrowser.add(webViewBrowser);
     that = this;
 	webViewBrowser.addEventListener("load", function () {
 
-		if (!isAndroid)
+		if (!isAndroid) {
 			windowBrowser.setRightNavButton(null);
-
+        }
 		activityIndicator.hide();
-		
-		windowBrowser.title = (webViewBrowser.title) ? webViewBrowser.title : webViewBrowser.evalJS("document.title");
+
+		windowBrowser.title = (isUndefined(webViewBrowser.title)) ? webViewBrowser.evalJS("document.title") : webViewBrowser.title;
 		actionsDialog.title = webViewBrowser.url;
 
 		if (buttonBack) {
@@ -322,9 +325,9 @@ var MiniBrowser = function(dictionary) {
     that = this;
 	webViewBrowser.addEventListener("beforeload", function () {
 
-		if (!isAndroid)
+		if (!isAndroid) {
 			windowBrowser.setRightNavButton(activityIndicator);
-
+        }
 		activityIndicator.show();
 
 		if (buttonAction) {
@@ -373,10 +376,10 @@ var MiniBrowser = function(dictionary) {
 		activityIndicator.message = null;
 	}
 
-	this.openBrowser = function() {
-		
+	this.openBrowser = function () {
+
 		var win = (this.modal === true && !isAndroid) ? winBase : windowBrowser;
-		
+
 		try {
 			if (!isAndroid && this.modalStyle && this.modal) {
 				win.open({
