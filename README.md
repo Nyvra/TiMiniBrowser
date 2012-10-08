@@ -61,7 +61,7 @@ The default strings language in this browser is in English. If you wanna transla
 * cancel
 * close
 
-If you don't know how to internationalize your application, please read this [https://wiki.appcelerator.org/display/guides/Internationalization](Wiki - Internationalization).
+If you don't know how to internationalize your application, please read this [Wiki - Internationalization](https://wiki.appcelerator.org/display/guides/Internationalization).
 
 ## Images
 ![TiMiniBrowser](http://img3.imageshack.us/img3/7131/screenshot20111229at335.png "TiMiniBrowser")
