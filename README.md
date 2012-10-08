@@ -2,7 +2,15 @@
 
 This is a module to Titanium Appcelerator. It simules a MiniBrowser insides your application, with some options.
 
-## How can I use it?
+NOTE: If you have some feature request, please create an issue or contribute with the project, it will be awesome!
+
+## Supports
+
+* **Titanium SDK**: 2.0.x (+)
+* **iOS**: 4.x (+)
+* **Android**: 2.1 (+)
+
+## Usage
 
 You have to use it following CommonJS rules. You can open the MiniBrowser in a Modal Window (default), or you can open it in a NavigationGroup or TabGroup. Below you will se examples that simules both.
 
