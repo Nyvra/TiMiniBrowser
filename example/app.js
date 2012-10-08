@@ -1,30 +1,60 @@
-var browser = require("modules/mini-browser/mini-browser.method");
+var TiMiniBrowser = require("lib/MiniBrowser/TiMiniBrowser");
+var isAndroid = (Ti.Platform.osname === "android");
 
-var windowBase = Ti.UI.createWindow({
+var win = Ti.UI.createWindow({
 	backgroundColor:"#FFF"
 });
 
-var buttonOpenMobileBrowser = Ti.UI.createButton({
-	left:50,
-	right:50,
-	height:50,
-	title:"Open MiniBrowser"
+var buttonModalBrowser = Ti.UI.createButton({
+	left: 50,
+	right: 50,
+	height: 50,
+	top: 100,
+	title: "Modal MiniBrowser"
 });
-windowBase.add(buttonOpenMobileBrowser);
+win.add(buttonModalBrowser);
 
-buttonOpenMobileBrowser.addEventListener("click", function() {
+var buttonNavBrowser = Ti.UI.createButton({
+	left: 50,
+	right: 50,
+	height: 50,
+	top: 200,
+	title: "Navigation MiniBrowser"
+});
+win.add(buttonNavBrowser);
 
-	browser.MiniBrowser({
-		url:"http://www.treinamentos.mobi",
-		barColor:"#000",
-		showToolbar: true,
-		modal: true,
-		windowTitle: 'Mini Browser',
-		activityMessage: 'Loading Page'
+if (isAndroid === false) {
+	var winBase = Ti.UI.createWindow();
+	
+	var nav = Ti.UI.iPhone.createNavigationGroup({
+		window: win
+	});
+
+	winBase.add(nav);
+	winBase.open();
+} else {
+	win.open();
+}
+
+buttonNavBrowser.addEventListener("click", function() {
+	var browser = new TiMiniBrowser({
+		url: "http://www.nyvra.net",
+		barColor: "#FF0000",
+		modal: false
 	});
 	
-	browser.openBrowser();
-	
+	if (isAndroid) {
+		browser.open();
+	} else {
+		nav.open(browser.getWindow());
+	}
 });
 
-windowBase.open();
+buttonModalBrowser.addEventListener("click", function() {
+	var browser = new TiMiniBrowser({
+		url: "http://www.nyvra.net",
+		barColor: "#FF0000"
+	});
+	
+	browser.open();
+});
